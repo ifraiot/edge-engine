@@ -2,8 +2,10 @@ package main
 
 import (
 	"edgeengine/commander"
+	commandHTTP "edgeengine/commander/api/http"
 	"edgeengine/commander/handlers"
 	"fmt"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
@@ -36,6 +38,10 @@ func main() {
 		lg.Error("Failed to create docker client")
 		panic(err)
 	}
+
+	r := commandHTTP.NewRouter()
+
+	go http.ListenAndServe(":8080", r)
 
 	defer cli.Close()
 
