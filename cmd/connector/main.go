@@ -40,9 +40,10 @@ func main() {
 	defer cli.Close()
 
 	handlers := map[string]connector.Handler{
-		"create_service":  handlers.NewCreateServiceHandler(cli, lg),
-		"inspect_service": handlers.NewReadServiceStatusHandler(),
-		"list_service":    handlers.NewListServiceHandler(cli, lg),
+		"create_service":    handlers.NewCreateServiceHandler(cli, lg),
+		"inspect_service":   handlers.NewReadServiceStatusHandler(),
+		"list_service":      handlers.NewListServiceHandler(cli, lg),
+		"terminate_service": handlers.NewTerminateServiceStatusHandler(cli, lg),
 	}
 
 	handlerService := connector.New(edgeId, handlers, lg)
