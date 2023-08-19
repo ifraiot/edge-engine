@@ -40,3 +40,8 @@ Edge-Engine is a powerful container-based edge computing software designed to su
 - **Integration Versatility:** Edge-Engine's protocol support ensures seamless integration with a diverse set of IoT devices, legacy equipment, and web services.
 - **Advanced Analytics:** Integration with NATS enables the creation of data analyzer applications, supporting real-time analytics and insights at the edge.
 - **Cloud Synergy:** The software bridges the gap between edge and cloud environments, enabling data synchronization and dashboard creation for comprehensive insights.
+
+## Roadmap:
+- [ ] Send a secure command via MQTT and HTTP, CLI
+- [ ] Data Ingressing with MQTT,OPC UA, Modbus
+- [ ] Support Machine Leaning Application
