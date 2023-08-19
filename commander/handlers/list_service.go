@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"context"
-	"edgeengine/connector"
+	"edgeengine/commander"
 	"encoding/json"
 
 	"github.com/docker/docker/api/types"
@@ -10,7 +10,7 @@ import (
 	"github.com/ifrasoft/logger"
 )
 
-var _ connector.Handler = (*ListServiceHandler)(nil)
+var _ commander.Handler = (*ListServiceHandler)(nil)
 
 type ListServiceParams struct {
 	Image string `json:"image"`
@@ -35,7 +35,7 @@ func (h *ListServiceHandler) CommandName() string {
 	return "list_service"
 }
 
-func (h *ListServiceHandler) Handle(command connector.Command) ([]byte, error) {
+func (h *ListServiceHandler) Handle(command commander.Command) ([]byte, error) {
 
 	params := CreateServiceParams{}
 	err := command.Bind(&params)

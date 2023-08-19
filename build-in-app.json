@@ -1,0 +1,33 @@
+{
+        "connectors": [
+                {
+                        "name": "MQTT Subscriber",
+                        "repository": "",
+                        "version": ""
+                },
+                {
+                        "name": "Modbus TCP",
+                        "repository": "",
+                        "version": ""
+                },
+                {
+                        "name": "Modbus RTU",
+                        "repository": "",
+                        "version": ""
+                }
+        ],
+        "analyzers": [
+                {
+                        "name": "Formater",
+                        "repository": "",
+                        "version": ""
+                }
+        ],
+        "integrators": [
+                {
+                        "name": "MQTT Publisher",
+                        "repository": "",
+                        "version": ""
+                }
+        ]
+}

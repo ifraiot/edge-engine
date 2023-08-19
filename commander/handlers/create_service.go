@@ -2,7 +2,8 @@ package handlers
 
 import (
 	"context"
-	"edgeengine/connector"
+	"edgeengine/commander"
+
 	"fmt"
 	"io"
 	"os"
@@ -15,7 +16,7 @@ import (
 	"github.com/ifrasoft/logger"
 )
 
-var _ connector.Handler = (*CreateServiceHandler)(nil)
+var _ commander.Handler = (*CreateServiceHandler)(nil)
 
 type CreateServiceParams struct {
 	Image string `json:"image"`
@@ -47,7 +48,7 @@ func (h *CreateServiceHandler) CommandName() string {
 	return "create_service"
 }
 
-func (h *CreateServiceHandler) Handle(command connector.Command) ([]byte, error) {
+func (h *CreateServiceHandler) Handle(command commander.Command) ([]byte, error) {
 
 	params := CreateServiceParams{}
 	err := command.Bind(&params)

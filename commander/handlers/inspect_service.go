@@ -1,8 +1,8 @@
 package handlers
 
-import "edgeengine/connector"
+import "edgeengine/commander"
 
-var _ connector.Handler = (*CreateServiceHandler)(nil)
+var _ commander.Handler = (*CreateServiceHandler)(nil)
 
 type ReadServiceStatusHandler struct{}
 
@@ -14,6 +14,6 @@ func (h *ReadServiceStatusHandler) CommandName() string {
 	return "inspect_service"
 }
 
-func (h *ReadServiceStatusHandler) Handle(command connector.Command) error {
+func (h *ReadServiceStatusHandler) Handle(command commander.Command) error {
 	return nil
 }

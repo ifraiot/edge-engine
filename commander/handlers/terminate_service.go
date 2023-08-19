@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"context"
-	"edgeengine/connector"
+	"edgeengine/commander"
 	"fmt"
 
 	"github.com/docker/docker/api/types"
@@ -11,7 +11,7 @@ import (
 	"github.com/ifrasoft/logger"
 )
 
-var _ connector.Handler = (*TerminateServiceStatusHandler)(nil)
+var _ commander.Handler = (*TerminateServiceStatusHandler)(nil)
 
 type TerminateServiceParams struct {
 	NameOrID string `json:"name"`
@@ -30,7 +30,7 @@ func (h *TerminateServiceStatusHandler) CommandName() string {
 	return "terminate_service"
 }
 
-func (h *TerminateServiceStatusHandler) Handle(command connector.Command) ([]byte, error) {
+func (h *TerminateServiceStatusHandler) Handle(command commander.Command) ([]byte, error) {
 
 	params := TerminateServiceParams{}
 	err := command.Bind(&params)

@@ -1,8 +1,8 @@
 package main
 
 import (
-	"edgeengine/connector"
-	"edgeengine/connector/handlers"
+	"edgeengine/commander"
+	"edgeengine/commander/handlers"
 	"fmt"
 	"os"
 	"os/signal"
@@ -39,14 +39,14 @@ func main() {
 
 	defer cli.Close()
 
-	handlers := map[string]connector.Handler{
+	handlers := map[string]commander.Handler{
 		"create_service":    handlers.NewCreateServiceHandler(cli, lg),
 		"inspect_service":   handlers.NewReadServiceStatusHandler(),
 		"list_service":      handlers.NewListServiceHandler(cli, lg),
 		"terminate_service": handlers.NewTerminateServiceStatusHandler(cli, lg),
 	}
 
-	handlerService := connector.New(edgeId, handlers, lg)
+	handlerService := commander.New(edgeId, handlers, lg)
 
 	if token := client.Subscribe(fmt.Sprintf(baseTopic, edgeId), 0, handlerService.Handler); token.Wait() && token.Error() != nil {
 		lg.Error("Failed to subscribe:" + token.Error().Error())

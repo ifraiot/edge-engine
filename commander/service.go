@@ -1,4 +1,4 @@
-package connector
+package commander
 
 type Handler interface {
 	CommandName() string
