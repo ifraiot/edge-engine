@@ -2,32 +2,32 @@
         "connectors": [
                 {
                         "name": "MQTT Subscriber",
-                        "repository": "",
-                        "version": ""
+                        "registry": "",
+                        "tag": ""
                 },
                 {
                         "name": "Modbus TCP",
-                        "repository": "",
-                        "version": ""
+                        "registry": "",
+                        "tag": ""
                 },
                 {
                         "name": "Modbus RTU",
-                        "repository": "",
-                        "version": ""
+                        "registry": "",
+                        "tag": ""
                 }
         ],
         "analyzers": [
                 {
                         "name": "Formater",
-                        "repository": "",
-                        "version": ""
+                        "registry": "",
+                        "tag": ""
                 }
         ],
         "integrators": [
                 {
                         "name": "MQTT Publisher",
-                        "repository": "",
-                        "version": ""
+                        "registry": "",
+                        "tag": ""
                 }
         ]
 }
