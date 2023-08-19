@@ -10,6 +10,8 @@ import (
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	docker "github.com/docker/docker/client"
+	"github.com/docker/go-connections/nat"
+
 	"github.com/ifrasoft/logger"
 )
 
@@ -19,10 +21,17 @@ type CreateServiceParams struct {
 	Image string `json:"image"`
 	Name  string `json:"name"`
 	From  string `json:"from"`
-	Envs  []struct {
-		Name  string `json:"name"`
-		Value string `json:"value"`
-	} `json:"envs"`
+	Envs  []Env  `json:"envs"`
+	Ports []Port `json:"ports"`
+}
+type Env struct {
+	Name  string `json:"name"`
+	Value string `json:"value"`
+}
+
+type Port struct {
+	Public    string `json:"public"`
+	Container string `json:"container"`
 }
 
 type CreateServiceHandler struct {
@@ -35,7 +44,6 @@ func NewCreateServiceHandler(cli *docker.Client, lg logger.Logger) *CreateServic
 }
 
 func (h *CreateServiceHandler) CommandName() string {
-
 	return "create_service"
 }
 
@@ -54,12 +62,23 @@ func (h *CreateServiceHandler) Handle(command connector.Command) ([]byte, error)
 	}
 	io.Copy(os.Stdout, reader)
 
+	portMapping := make(map[string]string, len(params.Ports))
+	for _, port := range params.Ports {
+		portMapping[port.Container+"/tcp"] = port.Public
+	}
+
 	resp, err := h.cli.ContainerCreate(ctx, &container.Config{
-
+		Env: func(envs []Env) []string {
+			for _, env := range envs {
+				return []string{fmt.Sprintf("%s=%s", env.Name, env.Value)}
+			}
+			return nil
+		}(params.Envs),
 		Image: params.Image,
-		// Cmd:   []string{"echo", "hello world"},
-
-	}, nil, nil, nil, "")
+	}, &container.HostConfig{
+		PortBindings: portBinding(portMapping),
+	},
+		nil, nil, "")
 	if err != nil {
 		panic(err)
 	}
@@ -84,4 +103,18 @@ func (h *CreateServiceHandler) Handle(command connector.Command) ([]byte, error)
 	fmt.Println(out)
 
 	return []byte(""), nil
+}
+
+func portBinding(portMap map[string]string) nat.PortMap {
+	portBinding := make(nat.PortMap)
+	for containerPort, hostPort := range portMap {
+		port, _ := nat.NewPort("tcp", containerPort)
+		portBinding[port] = []nat.PortBinding{
+			{
+				HostIP:   "0.0.0.0",
+				HostPort: hostPort,
+			},
+		}
+	}
+	return portBinding
 }
