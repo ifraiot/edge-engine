@@ -39,7 +39,7 @@ func main() {
 		panic(err)
 	}
 
-	r := commandHTTP.NewRouter()
+	r := commandHTTP.NewRouter(true)
 
 	go http.ListenAndServe(":8080", r)
 
