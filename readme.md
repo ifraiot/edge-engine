@@ -78,3 +78,16 @@ List Services
   }
 ]
 ```
+
+Terminate Services
+```json
+[
+  {
+    "command": "terminate_service",
+    "sender": "a92dd5f7-4cef-490c-8256-59d8390feb18",
+    "parameters": {
+      "name":"pensive_lehmann"
+    }
+  }
+]
+```
