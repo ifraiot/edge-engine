@@ -180,8 +180,8 @@ export default {
     }
   },
   mounted() {
-    this.fetchAvailableApplications();
-    this.fetchInstalledApplications();
+    this.fetchAvailableApplicationsWithAPI();
+    this.fetchInstalledApplicationsWithAPI();
   },
   watch: {
     'selectedApplicationFormValues.app_id': function (newAppId) {
@@ -216,6 +216,7 @@ export default {
       // this.loading = false
 
       alert(JSON.stringify(results))
+      this.installHandler()
     },
     showConsolelog(id) {
       this.consoleLogVisible = true
@@ -223,19 +224,19 @@ export default {
     },
     async uninstallHandler(id) {
       this.loading.deleteLoading = true
-      await this.uninstallApplication(id)
+      await this.uninstallApplicationWithAPI(id)
       this.loading.deleteLoading = false
-      this.fetchInstalledApplications();
+      this.fetchAvailableApplicationsWithAPI();
     },
-    async savedApplicationConfigHandler() {
+    async installHandler() {
       this.installLoading = true
-      await this.installApplication()
+      await this.installApplicationWithAPI()
       this.addServiceDrawer = false
       this.selectedApplicationId = null
-      this.fetchInstalledApplications()
+      this.fetchAvailableApplicationsWithAPI()
       this.installLoading = false
     },
-    async installApplication() {
+    async installApplicationWithAPI() {
       try {
 
         const keyValuePairs = Object.entries(this.selectedApplicationConfig).map(([key, value]) => ({
@@ -253,7 +254,7 @@ export default {
         // Handle error or show an error message to the user.
       }
     },
-    async uninstallApplication(id) {
+    async uninstallApplicationWithAPI(id) {
       try {
         const response = await axios.delete(`http://localhost:8000/api/applications/${id}`);
         console.log("API Response:", response.data);
@@ -263,7 +264,7 @@ export default {
         // Handle error or show an error message to the user.
       }
     },
-    async fetchAvailableApplications() {
+    async fetchAvailableApplicationsWithAPI() {
       try {
         const response = await axios.get('http://localhost:8000/api/available-applications');
         const items = response.data.data;
@@ -274,7 +275,7 @@ export default {
         console.error('Error fetching items:', error);
       }
     },
-    async fetchInstalledApplications() {
+    async fetchInstalledApplicationsWithAPI() {
       try {
 
         this.installedApplications.connectors = []
