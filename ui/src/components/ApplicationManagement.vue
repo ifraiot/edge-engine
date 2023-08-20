@@ -114,32 +114,24 @@
           </v-row>
           <v-row justify="space-around">
             <v-dialog v-model="addServiceDrawer">
-              <v-card>
- 
-                <v-card-text>
-                 
-                  <v-select label="Select" item-title="Name" item-value="Name" :items="availableApplications.connectors"></v-select>
-
-                  <v-text-field label="Phone Number"></v-text-field>
-
-                  <v-text-field label="E-mail"></v-text-field>
-
-                  <v-select label="Select"></v-select>
-
-                  <v-checkbox label="Option" type="checkbox"></v-checkbox>
-
-                  <v-btn class="me-4" type="submit">
-                    submit
-                  </v-btn>
-
-                  <v-btn>
-                    clear
-                  </v-btn>
-                </v-card-text>
-                <v-card-actions>
-                  <v-btn color="primary" block @click="dialog = false">Close Dialog</v-btn>
-                </v-card-actions>
-              </v-card>
+              <v-form validate-on="submit lazy" @submit.prevent="submit">
+                <v-card>
+                  <v-card-text>
+                    <v-select label="Application" item-title="label" item-value="id"
+                      v-model="selectedApplicationFormValues['app_id']" :items="availableApplications.connectors"
+                      required></v-select>
+                    <v-divider></v-divider>
+                    <v-text-field :v-if="selectedApplicationConfig != null"
+                      v-for="(field, index) in selectedApplicationConfig" :key="index" :label="field.name"
+                      v-model="selectedApplicationFormValues[field.id]"
+                      :rules="field.is_required ? [v => !!v || `${field.name} field is required`] : []"></v-text-field>
+                  </v-card-text>
+                  <v-card-actions>
+                    <v-btn color="primary" :loading="loading" type="submit">Save</v-btn>
+                    <v-btn color="info" @click="addServiceDrawer = false">Close</v-btn>
+                  </v-card-actions>
+                </v-card>
+              </v-form>
             </v-dialog>
           </v-row>
 
@@ -166,6 +158,10 @@ import axios from 'axios';
 export default {
   data() {
     return {
+      loading: false,
+      selectedApplication: null,
+      selectedApplicationConfig: null,
+      selectedApplicationFormValues: {},
       addServiceDrawer: false,
       tab: "services",
       connectors: [],
@@ -175,21 +171,56 @@ export default {
         connectors: [],
         analyzers: [],
         integrations: [],
-      }
+      },
     }
   },
   mounted() {
-    // Make the API call when the component is mounted
     this.fetchAvailableApplications();
   },
+  watch: {
+    'selectedApplicationFormValues.app_id': function (newAppId) {
+      if (newAppId) {
+        var connector = this.availableApplications.connectors.filter(item => item.id === newAppId);
+        var analyzers = this.availableApplications.analyzers.filter(item => item.id === newAppId);
+        var integrations = this.availableApplications.integrations.filter(item => item.id === newAppId);
+
+        var selectApplication = null
+        if (connector.length !== 0) {
+          selectApplication = connector[0]
+        } else if (analyzers.length !== 0) {
+          selectApplication = analyzers[0]
+        } else if (integrations.length !== 0) {
+          selectApplication = integrations[0]
+        }
+
+        this.selectedApplicationConfig = selectApplication.config
+        console.log('Selected item:', selectApplication);
+      }
+    }
+  },
   methods: {
+    requiredRule(fieldId) {
+      return [v => !!v || `${fieldId} is required`]; // Custom required validation rule
+    },
+    async submit(event) {
+      this.loading = true
+
+      const results = await event
+
+      this.loading = false
+
+      alert(JSON.stringify(results))
+    },
+    savedApplicationConfigHandler() {
+      console.log(this.selectedApplicationFormValues)
+    },
     async fetchAvailableApplications() {
       try {
         const response = await axios.get('http://localhost:8000/api/available-applications');
         const items = response.data.data;
-        this.availableApplications.connectors = items.filter(item => item.Type === 'connector');
-        this.availableApplications.analyzers = items.filter(item => item.Type === 'analyzer');
-        this.availableApplications.integrations = items.filter(item => item.Type === 'integration');
+        this.availableApplications.connectors = items.filter(item => item.type === 'connector');
+        this.availableApplications.analyzers = items.filter(item => item.type === 'analyzer');
+        this.availableApplications.integrations = items.filter(item => item.type === 'integration');
       } catch (error) {
         console.error('Error fetching items:', error);
       }

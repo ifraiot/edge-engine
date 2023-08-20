@@ -25,6 +25,7 @@ type CreateServiceParams struct {
 	Envs  []Env  `json:"envs"`
 	Ports []Port `json:"ports"`
 }
+
 type Env struct {
 	Name  string `json:"name"`
 	Value string `json:"value"`

@@ -1,31 +1,68 @@
 {
         "connectors": [
                 {
-                        "name": "MQTT Subscriber",
+                        "id": "mqtt_subscriber",
+                        "label": "MQTT Subscriber",
+                        "registry": "",
+                        "tag": "",
+                        "config": [
+                                {
+                                        "id": "host",
+                                        "name": "Host",
+                                        "is_required": true
+                                },
+                                {
+                                        "id": "port",
+                                        "name": "Port",
+                                        "is_required": true
+                                },
+                                {
+                                        "id": "topic",
+                                        "name": "Topic",
+                                        "is_required": true
+                                }
+                        ]
+                },
+                {
+                        "id": "modbus_tcp",
+                        "label": "Modbus TCP",
                         "registry": "",
                         "tag": ""
                 },
                 {
-                        "name": "Modbus TCP",
+                        "id": "modbus_rtu",
+                        "label": "Modbus RTU",
                         "registry": "",
-                        "tag": ""
-                },
-                {
-                        "name": "Modbus RTU",
-                        "registry": "",
-                        "tag": ""
+                        "tag": "",
+                        "config": [
+                                {
+                                        "id": "ip",
+                                        "name": "IP",
+                                        "is_required": false
+                                },
+                                {
+                                        "id": "port",
+                                        "name": "Port",
+                                        "is_required": true
+                                },
+                                {
+                                        "id": "topic",
+                                        "name": "Topic",
+                                        "is_required": true
+                                }
+                        ]
                 }
         ],
         "analyzers": [
                 {
-                        "name": "Formater",
+                        "label": "Formater",
                         "registry": "",
                         "tag": ""
                 }
         ],
         "integrators": [
                 {
-                        "name": "MQTT Publisher",
+                        "label": "MQTT Publisher",
                         "registry": "",
                         "tag": ""
                 }
