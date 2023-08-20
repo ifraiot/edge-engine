@@ -12,6 +12,7 @@ import (
 
 type ServiceHandler interface {
 	AvailableApplications() (availableApplications []service.AvailableApplication, err error)
+	InstallApplication(appId string, configs []service.Config) error
 }
 
 type serviceHandler struct {
@@ -32,7 +33,21 @@ func NewServiceHandler(db *gorm.DB, appPath string) ServiceHandler {
 	}
 }
 
-func (h *serviceHandler) InstallApplication() error {
+func (h *serviceHandler) InstallApplication(appId string, configs []service.Config) error {
+
+	jsonData, err := json.Marshal(configs)
+	if err != nil {
+		return err
+	}
+
+	err = h.db.Create(&service.InstalledApplication{
+		AppID:  appId,
+		Config: string(jsonData),
+	}).Error
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 

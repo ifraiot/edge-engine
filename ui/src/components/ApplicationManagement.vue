@@ -117,13 +117,12 @@
               <v-form validate-on="submit lazy" @submit.prevent="submit">
                 <v-card>
                   <v-card-text>
-                    <v-select label="Application" item-title="label" item-value="id"
-                      v-model="selectedApplicationFormValues['app_id']" :items="availableApplications.connectors"
-                      required></v-select>
+                    <v-select label="Application" item-title="label" item-value="id" v-model="selectedApplicationId"
+                      :items="availableApplications.connectors" required></v-select>
                     <v-divider></v-divider>
                     <v-text-field :v-if="selectedApplicationConfig != null"
                       v-for="(field, index) in selectedApplicationConfig" :key="index" :label="field.name"
-                      v-model="selectedApplicationFormValues[field.id]"
+                      v-model="selectedApplicationFormConfigs[field.id]"
                       :rules="field.is_required ? [v => !!v || `${field.name} field is required`] : []"></v-text-field>
                   </v-card-text>
                   <v-card-actions>
@@ -148,7 +147,8 @@ export default {
       loading: false,
       selectedApplication: null,
       selectedApplicationConfig: null,
-      selectedApplicationFormValues: {},
+      selectedApplicationId: null,
+      selectedApplicationFormConfigs: {},
       addServiceDrawer: false,
       tab: "services",
       connectors: [],
@@ -165,7 +165,7 @@ export default {
     this.fetchAvailableApplications();
   },
   watch: {
-    'selectedApplicationFormValues.app_id': function (newAppId) {
+    'selectedApplicationId': function (newAppId) {
       if (newAppId) {
         var connector = this.availableApplications.connectors.filter(item => item.id === newAppId);
         var analyzers = this.availableApplications.analyzers.filter(item => item.id === newAppId);
@@ -197,9 +197,33 @@ export default {
       this.loading = false
 
       alert(JSON.stringify(results))
+      if (results.valid) {
+        this.savedApplicationConfigHandler()
+      }
     },
-    savedApplicationConfigHandler() {
+    async savedApplicationConfigHandler() {
       console.log(this.selectedApplicationFormValues)
+      await this.installApplication()
+      this.addServiceDrawer = false
+      this.selectedApplicationId = null
+    },
+    async installApplication() {
+      try {
+
+        const keyValuePairs = Object.entries(this.selectedApplicationConfig).map(([key, value]) => ({
+          name: key,
+          value: value,
+        }));
+        const response = await axios.post("http://localhost:8000/api/install-application", {
+          app_id: this.selectedApplicationId,
+          configs: keyValuePairs
+        });
+        console.log("API Response:", response.data);
+        // Optionally, you can handle success or show a message to the user.
+      } catch (error) {
+        console.error("API Error:", error);
+        // Handle error or show an error message to the user.
+      }
     },
     async fetchAvailableApplications() {
       try {

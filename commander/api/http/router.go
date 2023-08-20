@@ -42,6 +42,7 @@ func NewRouter(uiEnabled bool) *gin.Engine {
 
 	serviceGroup := router.Group("/api")
 	serviceGroup.GET("/available-applications", serviceEndpoint.AvailableApplication)
+	serviceGroup.POST("/install-application", serviceEndpoint.InstallApplication)
 
 	if uiEnabled {
 		// router.Static("/", "../../ui/dist")
