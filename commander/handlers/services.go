@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+
+	"gorm.io/gorm"
 )
 
 type ServiceHandler interface {
@@ -13,6 +15,7 @@ type ServiceHandler interface {
 }
 
 type serviceHandler struct {
+	db      *gorm.DB
 	appPath string
 }
 
@@ -22,8 +25,19 @@ type Configuration struct {
 	Integrators []service.AvailableApplication `json:"integrators"`
 }
 
-func NewServiceHandler(appPath string) ServiceHandler {
-	return &serviceHandler{appPath: appPath}
+func NewServiceHandler(db *gorm.DB, appPath string) ServiceHandler {
+	return &serviceHandler{
+		db:      db,
+		appPath: appPath,
+	}
+}
+
+func (h *serviceHandler) InstallApplication() error {
+	return nil
+}
+
+func (h *serviceHandler) InstalledApplications() error {
+	return nil
 }
 
 func (h *serviceHandler) AvailableApplications() (availableApplications []service.AvailableApplication, err error) {

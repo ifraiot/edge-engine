@@ -134,19 +134,6 @@
               </v-form>
             </v-dialog>
           </v-row>
-
-          <!-- <v-navigation-drawer location="right" v-model="addServiceDrawer"> -->
-
-          <!-- <form>
-             
-            </form> -->
-          <!-- <v-btn color="primary" @click.stop="addServiceDrawer = !addServiceDrawer">
-              Toggle
-            </v-btn> -->
-
-          <!-- </v-navigation-drawer> -->
-
-
         </v-container>
       </v-window-item>
     </v-window>

@@ -2,10 +2,13 @@ package http
 
 import (
 	"edgeengine/commander/handlers"
+	"edgeengine/service"
 	"time"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 )
 
 type endpoint struct {
@@ -26,7 +29,14 @@ func NewRouter(uiEnabled bool) *gin.Engine {
 		MaxAge: 12 * time.Hour,
 	}))
 
-	serviceHandler := handlers.NewServiceHandler("../../build-in-app.json")
+	db, err := gorm.Open(sqlite.Open("gorm.db"), &gorm.Config{})
+	if err != nil {
+		panic(err)
+	}
+
+	db.AutoMigrate(&service.InstalledApplication{})
+
+	serviceHandler := handlers.NewServiceHandler(db, "../../build-in-app.json")
 
 	serviceEndpoint := NewServiceEndpoint(serviceHandler)
 

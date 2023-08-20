@@ -13,6 +13,7 @@ import (
 	docker "github.com/docker/docker/client"
 	MQTT "github.com/eclipse/paho.mqtt.golang"
 	"github.com/ifrasoft/logger"
+	// Sqlite driver based on CGO
 )
 
 const baseTopic = "edges/%s/commands"

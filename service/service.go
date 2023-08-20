@@ -15,3 +15,8 @@ type Config struct {
 	Example    string `json:"example"`
 	IsRequired bool   `json:"is_required"`
 }
+
+type InstalledApplication struct {
+	AppID  string `json:"app_id"`
+	Config string `json:"config"`
+}
