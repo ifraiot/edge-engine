@@ -17,6 +17,8 @@ type Config struct {
 }
 
 type InstalledApplication struct {
-	AppID  string `json:"app_id"`
-	Config string `json:"config"`
+	ID          string               `json:"id"`
+	AppID       string               `json:"app_id"`
+	Config      string               `json:"config"`
+	Application AvailableApplication `json:"application" gorm:"-"`
 }

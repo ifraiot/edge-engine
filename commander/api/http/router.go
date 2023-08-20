@@ -41,7 +41,13 @@ func NewRouter(uiEnabled bool) *gin.Engine {
 	serviceEndpoint := NewServiceEndpoint(serviceHandler)
 
 	serviceGroup := router.Group("/api")
+
 	serviceGroup.GET("/available-applications", serviceEndpoint.AvailableApplication)
+
+	appGroup := serviceGroup.Group("/applications")
+	appGroup.POST("", serviceEndpoint.InstallApplication)
+	appGroup.GET("", serviceEndpoint.InstalledApplication)
+	appGroup.DELETE(":id", serviceEndpoint.UninstalledApplication)
 
 	if uiEnabled {
 		// router.Static("/", "../../ui/dist")

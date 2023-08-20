@@ -7,11 +7,16 @@ import (
 	"io/ioutil"
 	"os"
 
+	"github.com/google/uuid"
+
 	"gorm.io/gorm"
 )
 
 type ServiceHandler interface {
 	AvailableApplications() (availableApplications []service.AvailableApplication, err error)
+	InstallApplication(appId string, configs []service.Config) error
+	InstalledApplications() ([]service.InstalledApplication, error)
+	UninstallApplication(id string) error
 }
 
 type serviceHandler struct {
@@ -32,12 +37,44 @@ func NewServiceHandler(db *gorm.DB, appPath string) ServiceHandler {
 	}
 }
 
-func (h *serviceHandler) InstallApplication() error {
+func (h *serviceHandler) UninstallApplication(id string) error {
+
+	err := h.db.Where("id = ?", id).Delete(&service.InstalledApplication{}).Error
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
-func (h *serviceHandler) InstalledApplications() error {
+func (h *serviceHandler) InstallApplication(appId string, configs []service.Config) error {
+
+	jsonData, err := json.Marshal(configs)
+	if err != nil {
+		return err
+	}
+
+	err = h.db.Create(&service.InstalledApplication{
+		ID:     uuid.New().String(),
+		AppID:  appId,
+		Config: string(jsonData),
+	}).Error
+	if err != nil {
+		return err
+	}
+
 	return nil
+}
+
+func (h *serviceHandler) InstalledApplications() ([]service.InstalledApplication, error) {
+
+	var installedApplications []service.InstalledApplication
+	err := h.db.Find(&installedApplications).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return installedApplications, nil
 }
 
 func (h *serviceHandler) AvailableApplications() (availableApplications []service.AvailableApplication, err error) {

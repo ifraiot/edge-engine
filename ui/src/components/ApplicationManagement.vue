@@ -1,10 +1,9 @@
  
 <template>
   <v-card>
-    <v-toolbar color="primary">
-      <v-app-bar-nav-icon></v-app-bar-nav-icon>
-
-      <v-toolbar-title>Edge Engine</v-toolbar-title>
+    <v-toolbar color="#00">
+      <!-- <v-app-bar-nav-icon></v-app-bar-nav-icon> -->
+      <v-toolbar-title color="#00">iFRA Edge Engine</v-toolbar-title>
 
       <v-spacer></v-spacer>
 
@@ -31,7 +30,7 @@
         <v-container>
           <v-row>
             <v-col>
-
+              <!-- {{ installedApplications }} -->
               <h2>Connectors</h2>
               <v-btn @click="addServiceDrawer = true">Add</v-btn>
               <v-table>
@@ -49,12 +48,17 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="item in connectors" :key="item.name">
-                    <td>{{ item.name }} {{ item.enabled }}</td>
+                  <tr v-for="item in installedApplications.connectors" :key="item.app_id">
+                    <td>{{ item.app_id }}</td>
                     <td>
 
                     </td>
-                    <td><v-btn>Edit</v-btn></td>
+                    <td>
+                      <v-btn @click="showConsolelog(item.id)" size="x-small">Log</v-btn>
+                      <v-btn size="x-small">Edit</v-btn>
+                      <v-btn :loading="loading.deleteLoading" @click="uninstallHandler(item.id)"
+                        size="x-small">Delete</v-btn>
+                    </td>
                   </tr>
                 </tbody>
               </v-table>
@@ -127,13 +131,14 @@
                       :rules="field.is_required ? [v => !!v || `${field.name} field is required`] : []"></v-text-field>
                   </v-card-text>
                   <v-card-actions>
-                    <v-btn color="primary" :loading="loading" type="submit">Save</v-btn>
+                    <v-btn color="primary" :loading="loading.installLoading" type="submit">Start install</v-btn>
                     <v-btn color="info" @click="addServiceDrawer = false">Close</v-btn>
                   </v-card-actions>
                 </v-card>
               </v-form>
             </v-dialog>
           </v-row>
+          <ConsoleLogVue logs="xxxxx" :visible="consoleLogVisible"></ConsoleLogVue>
         </v-container>
       </v-window-item>
     </v-window>
@@ -142,10 +147,18 @@
 
 <script>
 import axios from 'axios';
+import ConsoleLogVue from './ConsoleLog.vue';
 export default {
+  components: {
+    ConsoleLogVue
+  },
   data() {
     return {
-      loading: false,
+      consoleLogVisible: false,
+      loading: {
+        deleteLoading: false,
+        installLoading: false
+      },
       selectedApplication: null,
       selectedApplicationConfig: null,
       selectedApplicationFormValues: {},
@@ -159,10 +172,16 @@ export default {
         analyzers: [],
         integrations: [],
       },
+      installedApplications: {
+        connectors: [],
+        analyzers: [],
+        integrations: [],
+      }
     }
   },
   mounted() {
     this.fetchAvailableApplications();
+    this.fetchInstalledApplications();
   },
   watch: {
     'selectedApplicationFormValues.app_id': function (newAppId) {
@@ -190,16 +209,59 @@ export default {
       return [v => !!v || `${fieldId} is required`]; // Custom required validation rule
     },
     async submit(event) {
-      this.loading = true
+      // this.loading = true
 
       const results = await event
 
-      this.loading = false
+      // this.loading = false
 
       alert(JSON.stringify(results))
     },
-    savedApplicationConfigHandler() {
-      console.log(this.selectedApplicationFormValues)
+    showConsolelog(id) {
+      this.consoleLogVisible = true
+      console.log(id)
+    },
+    async uninstallHandler(id) {
+      this.loading.deleteLoading = true
+      await this.uninstallApplication(id)
+      this.loading.deleteLoading = false
+      this.fetchInstalledApplications();
+    },
+    async savedApplicationConfigHandler() {
+      this.installLoading = true
+      await this.installApplication()
+      this.addServiceDrawer = false
+      this.selectedApplicationId = null
+      this.fetchInstalledApplications()
+      this.installLoading = false
+    },
+    async installApplication() {
+      try {
+
+        const keyValuePairs = Object.entries(this.selectedApplicationConfig).map(([key, value]) => ({
+          name: key,
+          value: value,
+        }));
+        const response = await axios.post("http://localhost:8000/api/applications", {
+          app_id: this.selectedApplicationId,
+          configs: keyValuePairs
+        });
+        console.log("API Response:", response.data);
+        // Optionally, you can handle success or show a message to the user.
+      } catch (error) {
+        console.error("API Error:", error);
+        // Handle error or show an error message to the user.
+      }
+    },
+    async uninstallApplication(id) {
+      try {
+        const response = await axios.delete(`http://localhost:8000/api/applications/${id}`);
+        console.log("API Response:", response.data);
+        // Optionally, you can handle success or show a message to the user.
+      } catch (error) {
+        console.error("API Error:", error);
+        // Handle error or show an error message to the user.
+      }
     },
     async fetchAvailableApplications() {
       try {
@@ -208,6 +270,29 @@ export default {
         this.availableApplications.connectors = items.filter(item => item.type === 'connector');
         this.availableApplications.analyzers = items.filter(item => item.type === 'analyzer');
         this.availableApplications.integrations = items.filter(item => item.type === 'integration');
+      } catch (error) {
+        console.error('Error fetching items:', error);
+      }
+    },
+    async fetchInstalledApplications() {
+      try {
+
+        this.installedApplications.connectors = []
+        this.installedApplications.analyzers = []
+        this.installedApplications.integrations = []
+
+        const response = await axios.get('http://localhost:8000/api/applications');
+        const items = response.data.data;
+        for (let i = 0; i < items.length; i++) {
+          items[i].config = JSON.parse(items[i].config);
+          if (items[i].application.type === 'connector') {
+            this.installedApplications.connectors.push(items[i]);
+          } else if (items[i].application.type === 'analyzer') {
+            this.installedApplications.analyzers.push(items[i]);
+          } else if (items[i].application.type === 'integration') {
+            this.installedApplications.integrations.push(items[i]);
+          }
+        }
       } catch (error) {
         console.error('Error fetching items:', error);
       }
