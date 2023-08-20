@@ -41,7 +41,7 @@ func main() {
 
 	r := commandHTTP.NewRouter(true)
 
-	go http.ListenAndServe(":8080", r)
+	go http.ListenAndServe(":8000", r)
 
 	defer cli.Close()
 

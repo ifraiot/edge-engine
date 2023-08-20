@@ -52,9 +52,26 @@ func (h *serviceHandler) AvailableApplications() (availableApplications []servic
 		return nil, err
 	}
 
-	availableApplications = append(availableApplications, config.Connectors...)
-	availableApplications = append(availableApplications, config.Analyzers...)
-	availableApplications = append(availableApplications, config.Integrators...)
+	availableApplications = append(availableApplications, func(availableApplications []service.AvailableApplication) []service.AvailableApplication {
+		for i, _ := range availableApplications {
+			availableApplications[i].Type = "connector"
+		}
+		return availableApplications
+	}(config.Connectors)...)
+
+	availableApplications = append(availableApplications, func(availableApplications []service.AvailableApplication) []service.AvailableApplication {
+		for i, _ := range availableApplications {
+			availableApplications[i].Type = "analyzer"
+		}
+		return availableApplications
+	}(config.Analyzers)...)
+
+	availableApplications = append(availableApplications, func(availableApplications []service.AvailableApplication) []service.AvailableApplication {
+		for i, _ := range availableApplications {
+			availableApplications[i].Type = "integrator"
+		}
+		return availableApplications
+	}(config.Integrators)...)
 
 	return
 

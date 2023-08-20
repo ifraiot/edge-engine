@@ -6,6 +6,7 @@ require (
 	github.com/docker/docker v24.0.5+incompatible
 	github.com/docker/go-connections v0.4.0
 	github.com/eclipse/paho.mqtt.golang v1.4.3
+	github.com/gin-contrib/cors v1.4.0
 	github.com/gin-gonic/gin v1.9.1
 	github.com/ifrasoft/logger v0.0.0-20200915103522-52960620f31d
 )
