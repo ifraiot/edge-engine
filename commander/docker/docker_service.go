@@ -31,6 +31,15 @@ func NewDockerAPI(cli *docker.Client, lg logger.Logger) commander.DockerAPI {
 	return &dockerAPI{cli: cli, lg: lg}
 }
 
+func (h *dockerAPI) ContainerInfo(containerID string) (types.ContainerJSON, error) {
+	containerInfo, err := h.cli.ContainerInspect(context.Background(), containerID)
+	if err != nil {
+		return types.ContainerJSON{}, err
+	}
+
+	return containerInfo, nil
+}
+
 func (h *dockerAPI) DeleteContainer(containerId string) error {
 	err := h.cli.ContainerStop(context.Background(), containerId, container.StopOptions{})
 	if err != nil {
@@ -80,6 +89,9 @@ func (h *dockerAPI) CreateContainer(param commander.CreateContainerParams) (stri
 		ExtraHosts: []string{
 			"host.docker.internal:host-gateway",
 		},
+		// Binds: []string{
+		// 	"/path/to/host/synthesis.yml:/path/in/container/synthesis.yml",
+		// },
 		// PortBindings: portBinding(portMapping),
 	}
 

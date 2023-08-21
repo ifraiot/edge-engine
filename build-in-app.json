@@ -9,19 +9,50 @@
                                 {
                                         "id": "host",
                                         "name": "Host",
-                                        "is_required": true
+                                        "is_required": true,
+                                        "input_type": "text"
                                 },
                                 {
                                         "id": "port",
                                         "name": "Port",
-                                        "is_required": true
+                                        "is_required": true,
+                                        "input_type": "text"
                                 },
                                 {
                                         "id": "topic",
                                         "name": "Topic",
-                                        "is_required": true
+                                        "is_required": true,
+                                        "input_type": "text"
                                 }
                         ]
+                },
+                {
+                        "id": "rest_api",
+                        "label": "Rest API",
+                        "registry": "nginx",
+                        "tag": "latest",
+                        "config": []
+                },
+                {
+                        "id": "file_reader",
+                        "label": "File Reader",
+                        "registry": "",
+                        "tag": "",
+                        "config": []
+                },
+                {
+                        "id": "cc_link",
+                        "label": "CC Link Connector",
+                        "registry": "",
+                        "tag": "",
+                        "config": []
+                },
+                {
+                        "id": "file_reader",
+                        "label": "File Reader",
+                        "registry": "",
+                        "tag": "",
+                        "config": []
                 },
                 {
                         "id": "modbus_tcp",
@@ -40,27 +71,31 @@
                                         "id": "GATEWAY_IP",
                                         "name": "GATEWAY IP",
                                         "is_required": false,
+                                        "input_type": "text",
                                         "example": "",
                                         "default": ""
                                 },
                                 {
                                         "id": "GATEWAY_PORT",
                                         "name": "GATEWAY PORT",
-                                        "is_required": false,
+                                        "is_required": true,
+                                        "input_type": "text",
                                         "example": "",
                                         "default": ""
                                 },
                                 {
                                         "id": "EDGE_IP",
                                         "name": "EDGE IP",
-                                        "is_required": false,
+                                        "is_required": true,
+                                        "input_type": "text",
                                         "example": "",
                                         "default": ""
                                 },
                                 {
                                         "id": "EDGE_PORT",
                                         "name": "EDGE UDP PORT",
-                                        "is_required": false,
+                                        "is_required": true,
+                                        "input_type": "text",
                                         "example": "",
                                         "default": ""
                                 }
@@ -75,20 +110,23 @@
                                 {
                                         "id": "NATS_HOST",
                                         "name": "NATS_HOST",
-                                        "is_required": false,
+                                        "is_required": true,
+                                        "input_type": "text",
                                         "example": "",
                                         "default": "nats"
                                 },
                                 {
                                         "id": "RTU_ADDRESS",
                                         "name": "RTU_ADDRESS",
-                                        "is_required": false,
+                                        "is_required": true,
+                                        "input_type": "text",
                                         "default": "127.0.0.1"
                                 },
                                 {
                                         "id": "DATA_NAME",
                                         "name": "DATA_NAME",
                                         "is_required": true,
+                                        "input_type": "text",
                                         "example": "name=voltage_1;name=voltage_2;name=voltage_3",
                                         "default": ""
                                 },
@@ -96,6 +134,7 @@
                                         "id": "BAUD_RATE",
                                         "name": "BAUD_RATE",
                                         "is_required": true,
+                                        "input_type": "text",
                                         "example": "9600",
                                         "default": "9600"
                                 },
@@ -103,6 +142,7 @@
                                         "id": "SLAVE_ID",
                                         "name": "SLAVE_ID",
                                         "is_required": true,
+                                        "input_type": "text",
                                         "example": "100",
                                         "default": "100"
                                 },
@@ -110,6 +150,7 @@
                                         "id": "DATA_READ_INTERVAL",
                                         "name": "DATA_READ_INTERVAL (ms)",
                                         "is_required": true,
+                                        "input_type": "text",
                                         "example": "1000",
                                         "default": "100"
                                 },
@@ -117,6 +158,7 @@
                                         "id": "TIME_OUT",
                                         "name": "TIME_OUT (ms)",
                                         "is_required": true,
+                                        "input_type": "text",
                                         "example": "1000",
                                         "default": "1000"
                                 },
@@ -124,6 +166,7 @@
                                         "id": "START_ADDRESS",
                                         "name": "START_ADDRESS",
                                         "is_required": true,
+                                        "input_type": "text",
                                         "example": "START_ADDRESS=6",
                                         "default": "0"
                                 },
@@ -131,6 +174,7 @@
                                         "id": "QUANTITY",
                                         "name": "QUANTITY",
                                         "is_required": true,
+                                        "input_type": "text",
                                         "example": "QUANTITY=3",
                                         "default": "3"
                                 }
@@ -139,9 +183,44 @@
         ],
         "analyzers": [
                 {
-                        "label": "Formater",
-                        "registry": "",
-                        "tag": ""
+                        "id": "data_converter",
+                        "label": "Data Converter",
+                        "registry": "ifrasoft/synthesizer-app",
+                        "tag": "755ce1b3b557e77a0e076512489203d229e0308e",
+                        "config": [
+                                {
+                                        "id": "SYN_NATS_URL",
+                                        "name": "NATS_URL",
+                                        "is_required": true,
+                                        "input_type": "text",
+                                        "example": "host.docker.internal",
+                                        "default": "host.docker.internal"
+                                },
+                                {
+                                        "id": "SYN_NATS_SOURCE_SUBJECT",
+                                        "name": "NATS_SOURCE_SUBJECT",
+                                        "is_required": true,
+                                        "input_type": "text",
+                                        "example": "in",
+                                        "default": "in"
+                                },
+                                {
+                                        "id": "SYN_NATS_TARGET_SUBJECT",
+                                        "name": "NATS_TARGET_SUBJECT",
+                                        "is_required": true,
+                                        "input_type": "text",
+                                        "example": "in",
+                                        "default": "in"
+                                },
+                                {
+                                        "id": "SYN_NATS_TARGET_SUBJECT",
+                                        "name": "NATS_TARGET_SUBJECT",
+                                        "is_required": true,
+                                        "input_type": "textarea",
+                                        "example": "in",
+                                        "default": "in"
+                                }
+                        ]
                 }
         ],
         "integrators": [

@@ -16,6 +16,7 @@ type CommanderService interface {
 	InstallApplication(availableApplication AvailableApplication, configs []Config) error
 	InstalledApplications() ([]InstalledApplication, error)
 	UninstallApplication(id string) error
+	ApplicationStatus(id string) (string, error)
 }
 
 type commanderService struct {
@@ -42,6 +43,22 @@ func NewCommandService(
 		appPath:   appPath,
 		dockerAPI: dockerAPI,
 	}
+}
+
+func (h *commanderService) ApplicationStatus(id string) (string, error) {
+
+	var installedApplication InstalledApplication
+	err := h.db.Where("id = ?", id).First(&installedApplication).Error
+	if err != nil {
+		return "", err
+	}
+
+	containerInfo, err := h.dockerAPI.ContainerInfo(installedApplication.ContainerId)
+	if err != nil {
+		return "", err
+	}
+
+	return containerInfo.State.Status, nil
 }
 
 func (h *commanderService) UninstallApplication(id string) error {
