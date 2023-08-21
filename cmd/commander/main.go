@@ -2,27 +2,35 @@ package main
 
 import (
 	"edgeengine/commander"
-	commandHTTP "edgeengine/commander/api/http"
-	"edgeengine/commander/handlers"
-	"fmt"
+
+	httpapi "edgeengine/commander/api/http"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
+
+	dockerAPI "edgeengine/commander/docker"
 
 	docker "github.com/docker/docker/client"
 	MQTT "github.com/eclipse/paho.mqtt.golang"
+	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
 	"github.com/ifrasoft/logger"
-	// Sqlite driver based on CGO
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 )
 
 const baseTopic = "edges/%s/commands"
 
 func main() {
 
-	lg, _ := logger.New(os.Stdout, "info")
+	lg, err := logger.New(os.Stdout, "info")
+	if err != nil {
+		panic(err)
+	}
 
-	edgeId := "edge1"
+	// edgeId := "edge1"
 
 	opts := MQTT.NewClientOptions()
 	opts.AddBroker("tcp://broker.hivemq.com:1883") // Replace with your broker's address
@@ -40,24 +48,41 @@ func main() {
 		panic(err)
 	}
 
-	r := commandHTTP.NewRouter(true)
+	db, err := gorm.Open(sqlite.Open("gorm.db"), &gorm.Config{})
+	if err != nil {
+		panic(err)
+	}
 
-	go http.ListenAndServe(":8000", r)
+	db.AutoMigrate(&commander.InstalledApplication{})
 
+	dockerAPI := dockerAPI.NewDockerAPI(cli, lg)
+	commanderService := commander.NewCommandService(db, "../../build-in-app.json", dockerAPI)
+	serviceEndpoint := httpapi.NewServiceEndpoint(commanderService)
+
+	router := gin.Default()
+
+	router.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"*"},
+		AllowMethods:     []string{"*"},
+		AllowHeaders:     []string{"*"},
+		ExposeHeaders:    []string{"*"},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
+	}))
+
+	//HTTP API
+	serviceGroup := router.Group("/api")
+	serviceGroup.GET("/available-applications", serviceEndpoint.AvailableApplication)
+	appGroup := serviceGroup.Group("/applications")
+	appGroup.POST("", serviceEndpoint.InstallApplication)
+	appGroup.GET("", serviceEndpoint.InstalledApplication)
+	appGroup.DELETE(":id", serviceEndpoint.UninstalledApplication)
+	go http.ListenAndServe(":8000", router)
 	defer cli.Close()
 
-	handlers := map[string]commander.Handler{
-		"create_service":    handlers.NewCreateServiceHandler(cli, lg),
-		"inspect_service":   handlers.NewReadServiceStatusHandler(),
-		"list_service":      handlers.NewListServiceHandler(cli, lg),
-		"terminate_service": handlers.NewTerminateServiceStatusHandler(cli, lg),
-	}
-
-	handlerService := commander.New(edgeId, handlers, lg)
-
-	if token := client.Subscribe(fmt.Sprintf(baseTopic, edgeId), 0, handlerService.Handler); token.Wait() && token.Error() != nil {
-		lg.Error("Failed to subscribe:" + token.Error().Error())
-	}
+	// if token := client.Subscribe(fmt.Sprintf(baseTopic, edgeId), 0, handlerService.Handler); token.Wait() && token.Error() != nil {
+	// 	lg.Error("Failed to subscribe:" + token.Error().Error())
+	// }
 
 	lg.Info("edge engine is running")
 

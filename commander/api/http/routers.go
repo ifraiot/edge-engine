@@ -1,26 +1,25 @@
 package http
 
 import (
-	"edgeengine/commander/handlers"
-	"edgeengine/service"
+	"edgeengine/commander"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
 type ServiceEndpoint struct {
-	serviceHandler handlers.ServiceHandler
+	commanderService commander.CommanderService
 }
 
-func NewServiceEndpoint(serviceHandler handlers.ServiceHandler) *ServiceEndpoint {
+func NewServiceEndpoint(commanderService commander.CommanderService) *ServiceEndpoint {
 	return &ServiceEndpoint{
-		serviceHandler: serviceHandler,
+		commanderService: commanderService,
 	}
 }
 
 type InstallApplicationRequest struct {
-	AppId   string           `json:"app_id"`
-	Configs []service.Config `json:"configs"`
+	AppId   string             `json:"app_id"`
+	Configs []commander.Config `json:"configs"`
 }
 
 type UninstallApplicationRequest struct {
@@ -38,7 +37,7 @@ func (h *ServiceEndpoint) UninstalledApplication(c *gin.Context) {
 		return
 	}
 
-	err := h.serviceHandler.UninstallApplication(id)
+	err := h.commanderService.UninstallApplication(id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"status":  "error",
@@ -51,7 +50,7 @@ func (h *ServiceEndpoint) UninstalledApplication(c *gin.Context) {
 
 func (h *ServiceEndpoint) InstalledApplication(c *gin.Context) {
 
-	installedApplications, err := h.serviceHandler.InstalledApplications()
+	installedApplications, err := h.commanderService.InstalledApplications()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"status":  "error",
@@ -60,7 +59,7 @@ func (h *ServiceEndpoint) InstalledApplication(c *gin.Context) {
 		return
 	}
 
-	availableApplications, err := h.serviceHandler.AvailableApplications()
+	availableApplications, err := h.commanderService.AvailableApplications()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"status":  "error",
@@ -69,13 +68,13 @@ func (h *ServiceEndpoint) InstalledApplication(c *gin.Context) {
 		return
 	}
 
-	var availableApplicationMaps = make(map[string]service.AvailableApplication, len(availableApplications))
-	for _, availableApplication := range availableApplications {
-		availableApplicationMaps[availableApplication.ID] = availableApplication
+	var availableApplicationsMaps = make(map[string]commander.AvailableApplication, len(availableApplications))
+	for _, application := range availableApplications {
+		availableApplicationsMaps[application.ID] = application
 	}
 
-	for i, _ := range installedApplications {
-		installedApplications[i].Application = availableApplicationMaps[availableApplications[i].ID]
+	for i, installedApplication := range installedApplications {
+		installedApplications[i].Application = availableApplicationsMaps[installedApplication.AppID]
 	}
 
 	c.JSON(http.StatusOK, gin.H{
@@ -96,7 +95,23 @@ func (h *ServiceEndpoint) InstallApplication(c *gin.Context) {
 		return
 	}
 
-	err = h.serviceHandler.InstallApplication(installApplicationRequest.AppId, installApplicationRequest.Configs)
+	availableApplications, err := h.commanderService.AvailableApplications()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"status":  "error",
+			"message": err.Error(),
+		})
+		return
+	}
+
+	var availableApplication commander.AvailableApplication
+	for _, app := range availableApplications {
+		if app.ID == installApplicationRequest.AppId {
+			availableApplication = app
+		}
+	}
+
+	err = h.commanderService.InstallApplication(availableApplication, installApplicationRequest.Configs)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"status":  "error",
@@ -111,7 +126,7 @@ func (h *ServiceEndpoint) InstallApplication(c *gin.Context) {
 }
 
 func (h *ServiceEndpoint) AvailableApplication(c *gin.Context) {
-	availableApplications, err := h.serviceHandler.AvailableApplications()
+	availableApplications, err := h.commanderService.AvailableApplications()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"status":  "error",

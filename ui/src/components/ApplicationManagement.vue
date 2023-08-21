@@ -4,7 +4,6 @@
     <v-toolbar color="#00">
       <!-- <v-app-bar-nav-icon></v-app-bar-nav-icon> -->
       <v-toolbar-title color="#00">iFRA Edge Engine</v-toolbar-title>
-
       <v-spacer></v-spacer>
 
       <v-btn icon>
@@ -49,9 +48,9 @@
                 </thead>
                 <tbody>
                   <tr v-for="item in installedApplications.connectors" :key="item.app_id">
-                    <td>{{ item.app_id }}</td>
+                    <td>{{ item.application.label }}</td>
                     <td>
-
+                      Online
                     </td>
                     <td>
                       <v-btn @click="showConsolelog(item.id)" size="x-small">Log</v-btn>
@@ -65,15 +64,15 @@
             </v-col>
             <v-col>
               <h2>Analyzers</h2>
-              <v-btn>Add</v-btn>
+              <v-btn @click="addServiceDrawer = true">Add</v-btn>
               <v-table>
                 <thead>
                   <tr>
                     <th class="text-left">
-                      Name
+                      Service
                     </th>
                     <th class="text-left">
-                      Calories
+                      Status
                     </th>
                     <th class="text-left">
                       Manage
@@ -91,15 +90,15 @@
             </v-col>
             <v-col>
               <h2>Integrations</h2>
-              <v-btn>Add</v-btn>
+              <v-btn @click="addServiceDrawer = true">Add</v-btn>
               <v-table>
                 <thead>
                   <tr>
                     <th class="text-left">
-                      Name
+                      Service
                     </th>
                     <th class="text-left">
-                      Calories
+                      Status
                     </th>
                     <th class="text-left">
                       Manage
@@ -107,27 +106,35 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="item in integrations" :key="item.name">
-                    <td>{{ item.name }}</td>
-                    <td>{{ item.calories }}</td>
-                    <td><v-btn>Edit</v-btn></td>
+                  <tr v-for="item in installedApplications.integrations" :key="item.app_id">
+                    <td>{{ item.application.label }}</td>
+                    <td>
+                      Online
+                    </td>
+                    <td>
+                      <v-btn @click="showConsolelog(item.id)" size="x-small">Log</v-btn>
+                      <v-btn size="x-small">Edit</v-btn>
+                      <v-btn :loading="loading.deleteLoading" @click="uninstallHandler(item.id)"
+                        size="x-small">Delete</v-btn>
+                    </td>
                   </tr>
                 </tbody>
               </v-table>
             </v-col>
           </v-row>
           <v-row justify="space-around">
-            <v-dialog v-model="addServiceDrawer">
+            <v-dialog v-model="addServiceDrawer" width="50%">
               <v-form validate-on="submit lazy" @submit.prevent="submit">
                 <v-card>
                   <v-card-text>
                     <v-select label="Application" item-title="label" item-value="id"
-                      v-model="selectedApplicationFormValues['app_id']" :items="availableApplications.connectors"
+                      v-model="selectedApplicationId" :items="availableApplications.integrations"
                       required></v-select>
                     <v-divider></v-divider>
                     <v-text-field :v-if="selectedApplicationConfig != null"
                       v-for="(field, index) in selectedApplicationConfig" :key="index" :label="field.name"
                       v-model="selectedApplicationFormValues[field.id]"
+                      :hint="field.example"
                       :rules="field.is_required ? [v => !!v || `${field.name} field is required`] : []"></v-text-field>
                   </v-card-text>
                   <v-card-actions>
@@ -159,6 +166,7 @@ export default {
         deleteLoading: false,
         installLoading: false
       },
+      selectedApplicationId: null,
       selectedApplication: null,
       selectedApplicationConfig: null,
       selectedApplicationFormValues: {},
@@ -184,8 +192,9 @@ export default {
     this.fetchInstalledApplicationsWithAPI();
   },
   watch: {
-    'selectedApplicationFormValues.app_id': function (newAppId) {
+    'selectedApplicationId': function (newAppId) {
       if (newAppId) {
+        this.selectedApplicationFormValues = {}
         var connector = this.availableApplications.connectors.filter(item => item.id === newAppId);
         var analyzers = this.availableApplications.analyzers.filter(item => item.id === newAppId);
         var integrations = this.availableApplications.integrations.filter(item => item.id === newAppId);
@@ -198,6 +207,15 @@ export default {
         } else if (integrations.length !== 0) {
           selectApplication = integrations[0]
         }
+        console.log(selectApplication)
+
+        //Set Default Values
+        for (let index = 0; index < selectApplication.config.length; index++) {
+          const config = selectApplication.config[index];
+          this.selectedApplicationFormValues[config.id] = config.default === undefined ? '' : config.default
+        }
+
+
 
         this.selectedApplicationConfig = selectApplication.config
         console.log('Selected item:', selectApplication);
@@ -209,14 +227,10 @@ export default {
       return [v => !!v || `${fieldId} is required`]; // Custom required validation rule
     },
     async submit(event) {
-      // this.loading = true
-
-      const results = await event
-
-      // this.loading = false
-
-      alert(JSON.stringify(results))
-      this.installHandler()
+      const result = await event
+      if(result.valid){
+        this.installHandler()
+      }
     },
     showConsolelog(id) {
       this.consoleLogVisible = true
@@ -226,20 +240,20 @@ export default {
       this.loading.deleteLoading = true
       await this.uninstallApplicationWithAPI(id)
       this.loading.deleteLoading = false
-      this.fetchAvailableApplicationsWithAPI();
+      this.fetchInstalledApplicationsWithAPI();
     },
     async installHandler() {
       this.installLoading = true
-      await this.installApplicationWithAPI()
       this.addServiceDrawer = false
+      await this.installApplicationWithAPI()
       this.selectedApplicationId = null
-      this.fetchAvailableApplicationsWithAPI()
+      this.fetchInstalledApplicationsWithAPI();
       this.installLoading = false
     },
     async installApplicationWithAPI() {
       try {
 
-        const keyValuePairs = Object.entries(this.selectedApplicationConfig).map(([key, value]) => ({
+        const keyValuePairs = Object.entries(this.selectedApplicationFormValues).map(([key, value]) => ({
           name: key,
           value: value,
         }));
@@ -270,7 +284,7 @@ export default {
         const items = response.data.data;
         this.availableApplications.connectors = items.filter(item => item.type === 'connector');
         this.availableApplications.analyzers = items.filter(item => item.type === 'analyzer');
-        this.availableApplications.integrations = items.filter(item => item.type === 'integration');
+        this.availableApplications.integrations = items.filter(item => item.type === 'integrator');
       } catch (error) {
         console.error('Error fetching items:', error);
       }
@@ -290,7 +304,7 @@ export default {
             this.installedApplications.connectors.push(items[i]);
           } else if (items[i].application.type === 'analyzer') {
             this.installedApplications.analyzers.push(items[i]);
-          } else if (items[i].application.type === 'integration') {
+          } else if (items[i].application.type === 'integrator') {
             this.installedApplications.integrations.push(items[i]);
           }
         }

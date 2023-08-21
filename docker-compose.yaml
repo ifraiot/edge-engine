@@ -1,13 +1,43 @@
 version: '3'
+
+volumes:
+   mongodb_volume:
+
 services:
-  mqtt-broker:
-    image: eclipse-mosquitto
-    container_name: mqtt-broker
+  mongodb:
+    image: mongo:7.0.0
+    environment:
+        MONGO_INITDB_ROOT_USERNAME: root
+        MONGO_INITDB_ROOT_PASSWORD: rootpassword
     ports:
-      - "1883:1883"  # MQTT port
-      # - "9001:9001"  # WebSockets port for MQTT over WebSockets
+    - 27017:27017
+    
+    networks:
+        - ifra-network
+
     volumes:
-      - ./mosquitto/config/mosquitto.conf:/mosquitto/config/mosquitto.conf
-      - ./mosquitto/data:/mosquitto/data
-      - ./mosquitto/log:/mosquitto/log
-    restart: always
+    - mongodb_volume:/data/db
+  
+  nats:
+      image: nats
+      ports:
+        - "8222:8222"
+        - "4222:4222"
+      # mqtt-broker:
+      #   image: eclipse-mosquitto
+      #   container_name: mqtt-broker
+      #   ports:
+      #     - "1883:1883"  # MQTT port
+      #     # - "9001:9001"  # WebSockets port for MQTT over WebSockets
+      #   volumes:
+      #     - ./mosquitto/config/mosquitto.conf:/mosquitto/config/mosquitto.conf
+      #     - ./mosquitto/data:/mosquitto/data
+      #     - ./mosquitto/log:/mosquitto/log
+      #   restart: always
+
+      networks:
+        - ifra-network
+
+networks:
+  ifra-network:
+    external: true
