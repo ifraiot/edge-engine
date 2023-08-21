@@ -3,8 +3,8 @@
                 {
                         "id": "mqtt_subscriber",
                         "label": "MQTT Subscriber",
-                        "registry": "",
-                        "tag": "",
+                        "registry": "redis",
+                        "tag": "latest",
                         "config": [
                                 {
                                         "id": "host",
@@ -27,28 +27,112 @@
                         "id": "modbus_tcp",
                         "label": "Modbus TCP",
                         "registry": "",
-                        "tag": ""
+                        "tag": "",
+                        "config": []
+                },
+                {
+                        "id": "murata_gateway",
+                        "label": "Murata Gateway (LBAC0ZZ1SU)",
+                        "registry": "ifrasoft/murata-connector",
+                        "tag": "latest",
+                        "config": [
+                                {
+                                        "id": "GATEWAY_IP",
+                                        "name": "GATEWAY IP",
+                                        "is_required": false,
+                                        "example": "",
+                                        "default": ""
+                                },
+                                {
+                                        "id": "GATEWAY_PORT",
+                                        "name": "GATEWAY PORT",
+                                        "is_required": false,
+                                        "example": "",
+                                        "default": ""
+                                },
+                                {
+                                        "id": "EDGE_IP",
+                                        "name": "EDGE IP",
+                                        "is_required": false,
+                                        "example": "",
+                                        "default": ""
+                                },
+                                {
+                                        "id": "EDGE_PORT",
+                                        "name": "EDGE UDP PORT",
+                                        "is_required": false,
+                                        "example": "",
+                                        "default": ""
+                                }
+                        ]
                 },
                 {
                         "id": "modbus_rtu",
                         "label": "Modbus RTU",
-                        "registry": "",
-                        "tag": "",
+                        "registry": "ifrasoft/modbus-rtu-connector",
+                        "tag": "755ce1b3b557e77a0e076512489203d229e0308e",
                         "config": [
                                 {
-                                        "id": "ip",
-                                        "name": "IP",
-                                        "is_required": false
+                                        "id": "NATS_HOST",
+                                        "name": "NATS_HOST",
+                                        "is_required": false,
+                                        "example": "",
+                                        "default": "nats"
                                 },
                                 {
-                                        "id": "port",
-                                        "name": "Port",
-                                        "is_required": true
+                                        "id": "RTU_ADDRESS",
+                                        "name": "RTU_ADDRESS",
+                                        "is_required": false,
+                                        "default": "127.0.0.1"
                                 },
                                 {
-                                        "id": "topic",
-                                        "name": "Topic",
-                                        "is_required": true
+                                        "id": "DATA_NAME",
+                                        "name": "DATA_NAME",
+                                        "is_required": true,
+                                        "example": "name=voltage_1;name=voltage_2;name=voltage_3",
+                                        "default": ""
+                                },
+                                {
+                                        "id": "BAUD_RATE",
+                                        "name": "BAUD_RATE",
+                                        "is_required": true,
+                                        "example": "9600",
+                                        "default": "9600"
+                                },
+                                {
+                                        "id": "SLAVE_ID",
+                                        "name": "SLAVE_ID",
+                                        "is_required": true,
+                                        "example": "100",
+                                        "default": "100"
+                                },
+                                {
+                                        "id": "DATA_READ_INTERVAL",
+                                        "name": "DATA_READ_INTERVAL (ms)",
+                                        "is_required": true,
+                                        "example": "1000",
+                                        "default": "100"
+                                },
+                                {
+                                        "id": "TIME_OUT",
+                                        "name": "TIME_OUT (ms)",
+                                        "is_required": true,
+                                        "example": "1000",
+                                        "default": "1000"
+                                },
+                                {
+                                        "id": "START_ADDRESS",
+                                        "name": "START_ADDRESS",
+                                        "is_required": true,
+                                        "example": "START_ADDRESS=6",
+                                        "default": "0"
+                                },
+                                {
+                                        "id": "QUANTITY",
+                                        "name": "QUANTITY",
+                                        "is_required": true,
+                                        "example": "QUANTITY=3",
+                                        "default": "3"
                                 }
                         ]
                 }
@@ -62,9 +146,103 @@
         ],
         "integrators": [
                 {
+                        "id": "mqtt_publisher",
                         "label": "MQTT Publisher",
-                        "registry": "",
-                        "tag": ""
+                        "registry": "ifrasoft/mqtt-sink",
+                        "tag": "755ce1b3b557e77a0e076512489203d229e0308e",
+                        "config": [
+                                {
+                                        "id": "MSC_NATS_URL",
+                                        "name": "MSC_NATS_URL",
+                                        "is_required": true,
+                                        "example": "",
+                                        "default": "host.docker.internal"
+                                },
+                                {
+                                        "id": "MSC_NATS_SUBJECT",
+                                        "name": "MSC_NATS_SUBJECT",
+                                        "is_required": true,
+                                        "example": "in",
+                                        "default": "in"
+                                },
+                                {
+                                        "id": "MSC_MQTT_URL",
+                                        "name": "MSC_MQTT_URL",
+                                        "is_required": true,
+                                        "example": "nebular.mqtt.ifra.io:1883",
+                                        "default": "nebular.mqtt.ifra.io:1883"
+                                },
+                                {
+                                        "id": "MSC_MQTT_USERNAME",
+                                        "name": "MSC_MQTT_USERNAME",
+                                        "is_required": true,
+                                        "example": "31faee29-ec38-42b1-ba6d-7213e395a1a0",
+                                        "default": ""
+                                },
+                                {
+                                        "id": "MSC_MQTT_PASSWORD",
+                                        "name": "MSC_MQTT_PASSWORD",
+                                        "is_required": true,
+                                        "example": "dd45695e-d74c-46c4-96cf-400e30ee3368",
+                                        "default": ""
+                                },
+                                {
+                                        "id": "MSC_MQTT_TOPIC",
+                                        "name": "MSC_MQTT_TOPIC",
+                                        "is_required": true,
+                                        "example": "organization/17967684-c548-42b1-a473-cf6483291a18/messages",
+                                        "default": ""
+                                },
+                                {
+                                        "id": "MSC_MQTT_QOS",
+                                        "name": "MSC_MQTT_QOS",
+                                        "is_required": false,
+                                        "example": "0",
+                                        "default": "0"
+                                },
+                                {
+                                        "id": "MSC_MQTT_CLIENT_ID",
+                                        "name": "MSC_MQTT_CLIENT_ID",
+                                        "is_required": true,
+                                        "example": "31faee29-ec38-42b1-ba6d-7213e395a1a0",
+                                        "default": ""
+                                },
+                                {
+                                        "id": "MSC_MONGO_HOST",
+                                        "name": "MSC_MONGO_HOST",
+                                        "is_required": true,
+                                        "example": "host.docker.internal",
+                                        "default": "host.docker.internal"
+                                },
+                                {
+                                        "id": "MSC_MONGO_PORT",
+                                        "name": "MSC_MONGO_PORT",
+                                        "is_required": true,
+                                        "example": "27017",
+                                        "default": "27017"
+                                },
+                                {
+                                        "id": "MSC_MONGO_USERNAME",
+                                        "name": "MSC_MONGO_USERNAME",
+                                        "is_required": true,
+                                        "example": "root",
+                                        "default": "root"
+                                },
+                                {
+                                        "id": "MSC_MONGO_PASSWORD",
+                                        "name": "MSC_MONGO_PASSWORD",
+                                        "is_required": true,
+                                        "example": "password",
+                                        "default": "rootpassword"
+                                },
+                                {
+                                        "id": "MSC_FILTER_MEASUREMENTS",
+                                        "name": "MSC_FILTER_MEASUREMENTS",
+                                        "is_required": false,
+                                        "example": "",
+                                        "default": ""
+                                }
+                        ]
                 }
         ]
 }
