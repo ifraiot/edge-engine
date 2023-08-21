@@ -1,4 +1,4 @@
-# Edge-Engine: Container-Based Edge Computing Software for IoT Application
+# Container-Based Application Management for IoT Edge
 
 
 **Description:**
@@ -41,53 +41,8 @@ Edge-Engine is a powerful container-based edge computing software designed to su
 - **Advanced Analytics:** Integration with NATS enables the creation of data analyzer applications, supporting real-time analytics and insights at the edge.
 - **Cloud Synergy:** The software bridges the gap between edge and cloud environments, enabling data synchronization and dashboard creation for comprehensive insights.
 
-## Roadmap:
-- [ ] Send a secure command via MQTT and HTTP, CLI
-- [ ] Data Ingressing with MQTT,OPC UA, Modbus
-- [ ] Support Machine Leaning Application
+## Installation
+### Prepare Edge
+- Install docker
 
 
-
-### Example Commnad
-
-Create Service
-```json
-[
-  {
-    "command": "create_service",
-    "sender": "a92dd5f7-4cef-490c-8256-59d8390feb18",
-    "parameters": {
-      "from": "contrainer",
-      "env": [
-        {
-          "name": "LOG_LEVEL",
-          "value": "info"
-        }
-      ]
-    }
-  }
-]
-```
-
-List Services
-```json
-[
-  {
-    "command": "list_service",
-    "sender": "a92dd5f7-4cef-490c-8256-59d8390feb18"
-  }
-]
-```
-
-Terminate Services
-```json
-[
-  {
-    "command": "terminate_service",
-    "sender": "a92dd5f7-4cef-490c-8256-59d8390feb18",
-    "parameters": {
-      "name":"pensive_lehmann"
-    }
-  }
-]
-```
