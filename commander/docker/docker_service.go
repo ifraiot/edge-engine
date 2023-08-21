@@ -89,6 +89,9 @@ func (h *dockerAPI) CreateContainer(param commander.CreateContainerParams) (stri
 		ExtraHosts: []string{
 			"host.docker.internal:host-gateway",
 		},
+		// Binds: []string{
+		// 	"/path/to/host/synthesis.yml:/path/in/container/synthesis.yml",
+		// },
 		// PortBindings: portBinding(portMapping),
 	}
 

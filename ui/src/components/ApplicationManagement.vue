@@ -31,7 +31,7 @@
             <v-col>
               <!-- {{ installedApplications }} -->
               <h2>Connectors</h2>
-              <v-btn @click="addServiceDrawer = true">Add</v-btn>
+              <v-btn @click="showInstallDialog('connectors')">Add</v-btn>
               <v-table>
                 <thead>
                   <tr>
@@ -62,7 +62,7 @@
             </v-col>
             <v-col>
               <h2>Analyzers</h2>
-              <v-btn @click="addServiceDrawer = true">Add</v-btn>
+              <v-btn @click="showInstallDialog('analyzers')">Add</v-btn>
               <v-table>
                 <thead>
                   <tr>
@@ -88,7 +88,7 @@
             </v-col>
             <v-col>
               <h2>Integrations</h2>
-              <v-btn @click="addServiceDrawer = true">Add</v-btn>
+              <v-btn @click="showInstallDialog('integrations')">Add</v-btn>
               <v-table>
                 <thead>
                   <tr>
@@ -120,20 +120,17 @@
               </v-table>
             </v-col>
           </v-row>
-          <v-row justify="space-around">
+          <v-row>
             <v-dialog v-model="addServiceDrawer" width="50%">
               <v-form validate-on="submit lazy" @submit.prevent="submit">
                 <v-card>
                   <v-card-text>
-                    <v-select label="Application" item-title="label" item-value="id"
-                      v-model="selectedApplicationId" 
-                      :items="availableApplications.integrations"
-                      required></v-select>
+                    <v-select label="Application" item-title="label" item-value="id" v-model="selectedApplicationId"
+                      :items="selectedTypeAvailableApplications" required></v-select>
                     <v-divider></v-divider>
                     <v-text-field :v-if="selectedApplicationConfig != null"
                       v-for="(field, index) in selectedApplicationConfig" :key="index" :label="field.name"
-                      v-model="selectedApplicationFormValues[field.id]"
-                      :hint="field.example"
+                      v-model="selectedApplicationFormValues[field.id]" :hint="field.example"
                       :rules="field.is_required ? [v => !!v || `${field.name} field is required`] : []"></v-text-field>
                   </v-card-text>
                   <v-card-actions>
@@ -165,8 +162,8 @@ export default {
         deleteLoading: false,
         installLoading: false
       },
+      selectedTypeAvailableApplications: [],
       selectedApplicationId: null,
-      selectedApplication: null,
       selectedApplicationConfig: null,
       selectedApplicationFormValues: {},
       addServiceDrawer: false,
@@ -222,12 +219,21 @@ export default {
     }
   },
   methods: {
+    /**
+     * Set the selected type available applications based on the given application type.
+     *
+     * @param {string} applicationType - The type of application.
+     */
+    showInstallDialog(applicationType) {
+      this.selectedTypeAvailableApplications =   this.availableApplications[applicationType]
+      this.addServiceDrawer = true
+    },
     requiredRule(fieldId) {
       return [v => !!v || `${fieldId} is required`]; // Custom required validation rule
     },
     async submit(event) {
       const result = await event
-      if(result.valid){
+      if (result.valid) {
         this.installHandler()
       }
     },
