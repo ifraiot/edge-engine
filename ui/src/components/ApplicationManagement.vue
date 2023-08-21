@@ -128,7 +128,8 @@
                 <v-card>
                   <v-card-text>
                     <v-select label="Application" item-title="label" item-value="id"
-                      v-model="selectedApplicationId" :items="availableApplications.integrations"
+                      v-model="selectedApplicationId" 
+                      :items="availableApplications.integrations"
                       required></v-select>
                     <v-divider></v-divider>
                     <v-text-field :v-if="selectedApplicationConfig != null"
