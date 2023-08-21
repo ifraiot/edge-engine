@@ -49,9 +49,7 @@
                 <tbody>
                   <tr v-for="item in installedApplications.connectors" :key="item.app_id">
                     <td>{{ item.application.label }}</td>
-                    <td>
-                      Online
-                    </td>
+                    <td>{{ item.status }}</td>
                     <td>
                       <v-btn @click="showConsolelog(item.id)" size="x-small">Log</v-btn>
                       <v-btn size="x-small">Edit</v-btn>
@@ -82,7 +80,7 @@
                 <tbody>
                   <tr v-for="item in analyzers" :key="item.name">
                     <td>{{ item.name }}</td>
-                    <td>{{ item.calories }}</td>
+                    <td>{{ item.status }}</td>
                     <td><v-btn>Edit</v-btn></td>
                   </tr>
                 </tbody>
@@ -109,7 +107,7 @@
                   <tr v-for="item in installedApplications.integrations" :key="item.app_id">
                     <td>{{ item.application.label }}</td>
                     <td>
-                      Online
+                      {{ item.status }}
                     </td>
                     <td>
                       <v-btn @click="showConsolelog(item.id)" size="x-small">Log</v-btn>

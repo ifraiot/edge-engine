@@ -1,5 +1,7 @@
 package commander
 
+import "github.com/docker/docker/api/types"
+
 type CreateContainerParams struct {
 	Image string `json:"image"`
 	Name  string `json:"name"`
@@ -21,4 +23,5 @@ type Port struct {
 type DockerAPI interface {
 	CreateContainer(param CreateContainerParams) (string, error)
 	DeleteContainer(containerId string) error
+	ContainerInfo(containerID string) (types.ContainerJSON, error)
 }

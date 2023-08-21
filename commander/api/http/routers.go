@@ -74,7 +74,11 @@ func (h *ServiceEndpoint) InstalledApplication(c *gin.Context) {
 	}
 
 	for i, installedApplication := range installedApplications {
+
+		status, _ := h.commanderService.ApplicationStatus(installedApplication.ID)
+
 		installedApplications[i].Application = availableApplicationsMaps[installedApplication.AppID]
+		installedApplications[i].Status = status
 	}
 
 	c.JSON(http.StatusOK, gin.H{

@@ -28,6 +28,7 @@ type InstalledApplication struct {
 	Config      string               `json:"config"`
 	Application AvailableApplication `json:"application" gorm:"-"`
 	ContainerId string               `json:"container_id"`
+	Status      string               `json:"status" gorm:"-"`
 }
 
 type Command struct {
