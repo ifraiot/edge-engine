@@ -214,9 +214,10 @@
                                 },
                                 {
                                         "id": "SYN_NATS_TARGET_SUBJECT",
-                                        "name": "NATS_TARGET_SUBJECT",
+                                        "name": "SCRIPT",
                                         "is_required": true,
-                                        "input_type": "textarea",
+                                        "input_type": "volume-file",
+                                        "app_part": "/synthesis.yml",
                                         "example": "in",
                                         "default": "in"
                                 }
