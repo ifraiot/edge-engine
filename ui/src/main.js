@@ -9,6 +9,7 @@ import { fa } from "vuetify/iconsets/fa";
 import { aliases, mdi } from "vuetify/lib/iconsets/mdi";
 import "@mdi/font/css/materialdesignicons.css";
 import "@fortawesome/fontawesome-free/css/all.css";
+import "./assets/main.css";
 import router from './router/router';
 const myAllBlackTheme = {
   dark: false,

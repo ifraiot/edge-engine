@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@mdi/font": "^7.2.96",
+    "@vue-flow/core": "^1.22.3",
     "axios": "^1.4.0",
     "core-js": "^3.8.3",
     "nats.ws": "^1.17.0",
