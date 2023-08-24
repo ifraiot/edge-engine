@@ -17,8 +17,8 @@
       <template v-slot:extension>
         <v-tabs v-model="tab" align-tabs="title">
           <v-tab value="services">Services</v-tab>
-          <v-tab value="two">Item Two</v-tab>
-          <v-tab value="three">Item Three</v-tab>
+          <v-tab value="two">Data Logger</v-tab>
+          <v-tab value="three">Service Market</v-tab>
         </v-tabs>
 
       </template>
@@ -128,10 +128,11 @@
                     <v-select label="Application" item-title="label" item-value="id" v-model="selectedApplicationId"
                       :items="selectedTypeAvailableApplications" required></v-select>
                     <v-divider></v-divider>
-                    <v-text-field :v-if="selectedApplicationConfig != null"
-                      v-for="(field, index) in selectedApplicationConfig" :key="index" :label="field.name"
+                    <v-text-field  v-for="(field, index) in selectedApplicationConfig" :key="index" :label="field.name"
                       v-model="selectedApplicationFormValues[field.id]" :hint="field.example"
-                      :rules="field.is_required ? [v => !!v || `${field.name} field is required`] : []"></v-text-field>
+                      :rules="field.is_required ? [v => !!v || `${field.name} field is required`] : []" :v-if="selectedApplicationConfig != null && field.input_type !=='volume-file'" ></v-text-field>
+
+                      <v-textarea label="Label"></v-textarea>
                   </v-card-text>
                   <v-card-actions>
                     <v-btn color="primary" :loading="loading.installLoading" type="submit">Start install</v-btn>

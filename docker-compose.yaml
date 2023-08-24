@@ -2,6 +2,7 @@ version: '3'
 
 volumes:
    mongodb_volume:
+   timescaledb_volume:
 
 services:
   mongodb:
@@ -11,29 +12,30 @@ services:
         MONGO_INITDB_ROOT_PASSWORD: rootpassword
     ports:
     - 27017:27017
-    
-    networks:
-        - ifra-network
-
     volumes:
     - mongodb_volume:/data/db
+    networks:
+    - ifra-network
   
   nats:
       image: nats
       ports:
         - "8222:8222"
         - "4222:4222"
-      # mqtt-broker:
-      #   image: eclipse-mosquitto
-      #   container_name: mqtt-broker
-      #   ports:
-      #     - "1883:1883"  # MQTT port
-      #     # - "9001:9001"  # WebSockets port for MQTT over WebSockets
-      #   volumes:
-      #     - ./mosquitto/config/mosquitto.conf:/mosquitto/config/mosquitto.conf
-      #     - ./mosquitto/data:/mosquitto/data
-      #     - ./mosquitto/log:/mosquitto/log
-      #   restart: always
+      command: ["--jetstream"]
+      networks:
+        - ifra-network
+
+  timescaledb:
+      image: timescale/timescaledb:latest-pg12
+      restart: always
+      ports:
+        - 5432:5432
+      environment:
+        POSTGRES_USER: timescaledb
+        POSTGRES_PASSWORD: password
+      volumes:
+       - timescaledb_volume:/var/lib/postgresql/data
 
       networks:
         - ifra-network
