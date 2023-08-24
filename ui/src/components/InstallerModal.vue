@@ -53,6 +53,13 @@ export default {
         },
     },
     methods: {
+        async submit(event) {
+            const result = await event
+            if (result.valid) {
+                this.installApplicationhAPI(this.selectedApplicationId, this.selectedApplicationFormValues)
+                this.$emit('update:dialogVisible', false);
+            }
+        },
         closeDialog() {
             this.$emit('update:dialogVisible', false)
         },
@@ -65,6 +72,24 @@ export default {
                 console.error('Error fetching items:', error);
             }
             return []
+        },
+        async installApplicationhAPI(appId, values) {
+            try {
+
+                const keyValuePairs = Object.entries(values).map(([key, value]) => ({
+                    name: key,
+                    value: value,
+                }));
+                const response = await axios.post("http://localhost:8000/api/applications", {
+                    app_id: appId,
+                    configs: keyValuePairs
+                });
+                console.log("API Response:", response.data);
+                // Optionally, you can handle success or show a message to the user.
+            } catch (error) {
+                console.error("API Error:", error);
+                // Handle error or show an error message to the user.
+            }
         },
     },
     watch: {
