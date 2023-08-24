@@ -5,13 +5,14 @@
                 <h2>Connectors</h2>
             </v-col>
             <v-col cols="6" align-self="end" class="text-right">
-                <v-btn class="pa-2 ma-2" color="primary" @click="openAddDialog">
+                <v-btn class="pa-2 ma-2" color="primary" @click="addConnectorHandler">
                     <v-icon>mdi-plus</v-icon>
                     Install Connectors</v-btn>
             </v-col>
         </v-row>
         <v-row>
             <v-col cols="12">
+                <InstallerModal :dialogVisible="visibleInstallerModal" @update:dialogVisible="visibleInstallerModal = $event" appType="connector"></InstallerModal>
                 <v-table>
                     <thead>
                         <tr>
@@ -35,9 +36,19 @@
     </div>
 </template>
 <script>
+import InstallerModal from '../components/InstallerModal.vue'
 export default {
+    components: {
+        InstallerModal
+    },
+    methods: {
+        addConnectorHandler() {
+            this.visibleInstallerModal = true
+        },
+    },
     data() {
         return {
+            visibleInstallerModal:false,
             desserts: [
                 {
                     name: 'Frozen Yogurt',

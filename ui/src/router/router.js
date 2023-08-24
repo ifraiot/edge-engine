@@ -4,6 +4,7 @@ import HomePage from '../pages/HomePage'; // Import your components
 import ConnectorsPage from '../pages/ConnectorsPage';
 import AnalyzersPage from '../pages/AnalyzersPage';
 import IntegratorsPage from '../pages/IntegratorsPage';
+import DataPage from '../pages/DataPage'
 const routes = [
   {
     path: '/',
@@ -20,6 +21,10 @@ const routes = [
   {
     path: '/integrators',
     component: IntegratorsPage
+  },
+  {
+    path: '/data',
+    component: DataPage
   }
 ];
 

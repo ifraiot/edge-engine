@@ -5,11 +5,13 @@
                 <h2>Analyzers</h2>
             </v-col>
             <v-col cols="6" align-self="end" class="text-right">
-                <v-btn class="pa-2 ma-2" color="primary" @click="openAddDialog">  <v-icon>mdi-plus</v-icon> Install Analyzer</v-btn>
+                <v-btn class="pa-2 ma-2" color="primary" @click="addAnalyzerHandler"> <v-icon>mdi-plus</v-icon> Install
+                    Analyzer</v-btn>
             </v-col>
         </v-row>
         <v-row>
             <v-col cols="12">
+                <InstallerModal :dialogVisible="visibleInstallerModal" @update:dialogVisible="visibleInstallerModal = $event" appType="analyzer"></InstallerModal>
                 <v-table>
                     <thead>
                         <tr>
@@ -33,9 +35,19 @@
     </div>
 </template>
 <script>
+import InstallerModal from '../components/InstallerModal.vue'
 export default {
+    components: {
+        InstallerModal
+    },
+    methods: {
+        addAnalyzerHandler() {
+            this.visibleInstallerModal = true
+        },
+    },
     data() {
         return {
+            visibleInstallerModal:false,
             desserts: [
                 {
                     name: 'Frozen Yogurt',
